@@ -5,8 +5,8 @@
   "author": "Maciej Korsan <maciejkorsan@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "parcel src/index.html",
-    "build": "parcel build src/index.html"
+    "start": "parcel src/*.html",
+    "build": "parcel build src/*.html"
   },
   "dependencies": {
     "@generative-music/samples-alex-bainter": "^2.5.0",
@@ -16,6 +16,8 @@
     "tone": "^14.7.77"
   },
   "devDependencies": {
-    "parcel-reporter-static-files-copy": "^1.5.2"
+    "parcel-reporter-static-files-copy": "^1.5.2",
+    "postcss": "^8.4.28",
+    "tailwindcss": "^3.3.3"
   }
 }
