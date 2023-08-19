@@ -1,6 +1,5 @@
 import * as Tone from "tone";
 import p5 from "p5";
-import { Note, Scale, Interval } from "tonal";
 import getSamples from "@generative-music/samples-alex-bainter";
 
 let ready = false;

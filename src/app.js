@@ -1,6 +1,5 @@
 import * as Tone from "tone";
 import p5 from "p5";
-import { Note, Scale, Interval } from "tonal";
 
 let ready = false;
 
