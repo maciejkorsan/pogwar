@@ -82,7 +82,7 @@ let s = (sk) => {
     sk.background(40);
   };
 
-  initializeAudio = () => {
+  const initializeAudio = () => {
     const chords = ["G3", "D3", "E3", "B3"];
 
     constSynth.triggerAttack("C3");
