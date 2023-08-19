@@ -6,12 +6,7 @@ let ready = false;
 
 const samples = getSamples({ format: "mp3" });
 
-const compressor = new Tone.Compressor({
-    threshold: -3,
-    ratio: 6,
-    attack: 0.5,
-    release: 0.1
-}).toDestination();
+
 
 
 
@@ -91,7 +86,7 @@ let s = (sk) => {
 	},
 	baseUrl: "http://localhost:1234/",
   });
-  bassSynth.volume.value = -20;
+  bassSynth.volume.value = -5;
 
   bassSynth.connect(compressor);
 
