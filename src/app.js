@@ -5,6 +5,10 @@ import { Note } from "tonal";
 
 let ready = false;
 
+let pianoSlider = null;
+let noiseSlider = null;
+let synthSlider = null;
+
 let s = (sk) => {
 
 
@@ -14,6 +18,21 @@ let s = (sk) => {
 
 
 
+  var noise = new Tone.Noise("pink").start();
+
+  noise.volume.value = -33;
+
+  //make an autofilter to shape the noise
+  var autoFilter = new Tone.AutoFilter({
+    "frequency" : "8m",
+    "min" : 800,
+    "max" : 15000,
+    "depth" : .98,
+    "type" : "sine",
+    "wet" : 1
+  }).chain(compressor, Tone.Destination);
+  noise.connect(autoFilter);
+  autoFilter.start()
 
 
 
@@ -23,23 +42,23 @@ let s = (sk) => {
       A3: "pogwar.mp3",
     },
     baseUrl: "/",
-  }).toDestination();
+  }).chain(reverb, compressor, Tone.Destination);
 
-  sampler3.volume.value = -25;
+  sampler3.volume.value = -15;
 
 
   const bgSynth = new Tone.Synth({
     oscillator: {
-      type: "sine",
+      type: "amtriangle",
     },
     envelope: {
       attack: 2,
       decay: 0,
-      sustain: .8,
+      sustain: .4,
       release: 2,
     },
   }).chain(delay, reverb, compressor, Tone.Destination);;
-  bgSynth.volume.value = -10;
+  bgSynth.volume.value = -20;
 
   const bgSynthB = new Tone.PolySynth({
     oscillator: {
@@ -80,7 +99,7 @@ let s = (sk) => {
       release: 5,
     },
   }).chain(delay, reverb, compressor, Tone.Destination);;
-  bgSynth2.volume.value = -15;
+  bgSynth2.volume.value = -25;
 
   const constSynth = new Tone.FMSynth({
     harmonicity: 3,
@@ -110,19 +129,26 @@ let s = (sk) => {
     },
     baseUrl: "/",
   }).chain( reverb, compressor, Tone.Destination);;
-  piano.volume.value = -15;
+  piano.volume.value = -10;
 
   sk.setup = () => {
     sk.createCanvas(window.innerWidth, window.innerHeight);
     sk.background(40);
+    pianoSlider = sk.createSlider(-100, 0, -100);
+    pianoSlider.position(200,200);
+    noiseSlider = sk.createSlider(-100, 0, -100);
+    noiseSlider.position(200,300);
+    synthSlider = sk.createSlider(-100, 0, -100);
+    synthSlider.position(200,400);
   };
 
   const initializeAudio = () => {
 
+
     Tone.start();
     
     constSynth.triggerAttack();
-    const chords = ["C3", "G3", "D3", "E3", "B2"];
+    const chords = ["C3", "G3", "D3", "E3", "A2"];
 
     function getRandom(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
@@ -132,11 +158,13 @@ let s = (sk) => {
 
     const playChord = () => {
       const index = chords.indexOf(chord);
+      bgSynth.triggerAttackRelease(Note.transpose(chord, 'P-8'), 5.5);
+
       const tmp = [...chords];
       tmp.splice(index, 1);
       chord = getRandom(tmp);
-      bgSynth.triggerAttackRelease(Note.transpose(chord, "P-8"), 8.5);
-      Tone.Transport.scheduleOnce(playChord, `+9.8`);
+      bgSynth2.triggerAttackRelease(chord, 7);
+      Tone.Transport.scheduleOnce(playChord, `+8`);
     };
 
    
@@ -147,10 +175,10 @@ let s = (sk) => {
     const playPogwar = () => {
       if (sampler3.loaded)
         sampler3.triggerAttackRelease(
-          ["C3", "D3", "A2"][Math.floor(Math.random() * 3)],
+          ["C3", "D3", "A3"][Math.floor(Math.random() * 3)],
           1
         );
-      Tone.Transport.scheduleOnce(playPogwar, `+69`);
+      Tone.Transport.scheduleOnce(playPogwar, `+137`);
     };
 
     // const melodies = [
@@ -213,6 +241,9 @@ let s = (sk) => {
       sk.fill("black");
       sk.textAlign(sk.CENTER, sk.CENTER);
       sk.text("POGWAR", sk.width / 2, sk.height / 2);
+      piano.volume.value = pianoSlider.value();
+      bgSynth.volume.value = synthSlider.value();
+      bgSynth2.volume.value = noiseSlider.value();
     }
   };
 

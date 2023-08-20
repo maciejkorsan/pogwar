@@ -2,6 +2,8 @@ import * as Tone from "tone";
 import p5 from "p5";
 import { Note, Scale } from "tonal";
 
+let gain = null;
+
 let ready = false;
 
 let s = (sk) => {
@@ -10,131 +12,133 @@ let s = (sk) => {
   const delay = new Tone.FeedbackDelay(0.4, 0.7);
 
   let root = "G#2";
-  let NOTES = ["B3", "D3", "E3", "F#4", "A4"];
+  // let NOTES = [""B3", "D3", "E3", "F#4", "A4"];
+
+  let notesObjects = [
+    { note: "B2", prob: 0.2 },
+    { note: "D2", prob: 0.2 },
+    { note: "E2", prob: 0.2 },
+    { note: "F#2", prob: 0.2 },
+    { note: "A3", prob: 0.6 },
+    { note: "B3", prob: 0.6 },
+    { note: "D3", prob: 0.6 },
+    { note: "E3", prob: 0.6 },
+    { note: "F#3", prob: 0.6 },
+
+  ]
 
 
-
-  const setRoot = (newRoot, mood = 'major') => {
-    root = newRoot;
-    NOTES = Scale.get(`${root} ${mood}`).notes;
-  };
-
-
-  const glock = new Tone.Sampler({
-    urls: {
-      C5: "glock_medium_C5.wav",
-      G5: "glock_medium_G5.wav",
+  const bassNotes = [
+    { note: "B1", prob: 0.2 },
+    { note: "D2", prob: 0.2 },
+    { note: "E2", prob: 0.2 },]
+  
+  const synth = new Tone.Synth({
+    oscillator: {
+      type: "sine4"
     },
-    baseUrl: "/",
-  }).chain(reverb, delay, compressor, Tone.Destination);
+    envelope: {
+      attack: 0.1,
+      decay: 0.1,
+      sustain: 0.1,
+      release: 0.1,
+    }
+    
+  })
 
-  const sampler3 = new Tone.Sampler({
-    urls: {
-      A3: "pogwar.mp3",
+
+  synth.chain( delay, reverb,compressor, Tone.Destination)
+  synth.volume.value = -10;
+
+  const bassSynth = new Tone.Synth({
+    oscillator: {
+      type: "triangle19"
     },
-    baseUrl: "/",
-  }).chain(reverb, compressor, Tone.Destination);
+    envelope: {
+      attack: 0.1,
+      decay: 0.1,
+      sustain: 0.1,
+      release: 0.1,
+    }
+  })
+  
 
-  sampler3.volume.value = -10;
+  bassSynth.chain( delay, reverb,compressor, Tone.Destination);
 
-  const piano = new Tone.Sampler({
-    urls: {
-      C3: "UR1_C3_mf_RR2.wav",
-      C4: "UR1_C4_mf_RR2.wav",
-      C5: "UR1_C5_mf_RR2.wav",
-    },
-    baseUrl: "/",
-  }).chain(reverb, compressor, Tone.Destination);
-  piano.volume.value = -7;
+  const synth2 = new Tone.Synth(
+    {
+      oscillator: {
+        type: "sine"
+      },
+      envelope: {
+        attack: 0.1,
+        decay: 0.1,
+        sustain: 0.4,
+        release: 0.1,
+      }
+    }
+  )
 
-  const horn = new Tone.Sampler({
-    urls: {
-      C3: "MOHorn_sus_C3_v3_1.wav",
-      D2: "MOHorn_sus_D2_v3_1.wav",
-    },
-    baseUrl: "/",
-  }).chain(reverb, compressor, Tone.Destination);
-  horn.volume.value = -5;
+  synth2.chain(reverb, compressor, Tone.Destination)
+  synth2.volume.value = -3;
+  
 
   sk.setup = () => {
     sk.createCanvas(window.innerWidth, window.innerHeight);
     sk.background(40);
+
+    pianoSlider = sk.createSlider(-50, 0, -40);
+    pianoSlider.position(200,200);
+    noiseSlider = sk.createSlider(-40, 0, -40);
+    noiseSlider.position(200,300);
+    synthSlider = sk.createSlider(-40, 0, -40);
+    synthSlider.position(200,400);
+    synth2Slider = sk.createSlider(-40, 0, -40);
+    synth2Slider.position(200,400);
   };
 
   const initializeAudio = () => {
     Tone.start();
 
-    const playPogwar = () => {
-      if (sampler3.loaded)
-        sampler3.set({
-          detune: Math.random() * 100 - 50,
-        });
-      sampler3.triggerAttackRelease(
-        ["A3", "E3", "F2"][Math.floor(Math.random() * 3)],
-        1
-      );
-      Tone.Transport.scheduleOnce(playPogwar, `+31.3`);
-    };
+    var noise = new Tone.Noise("pink").start();
 
+    noise.volume.value = -40;
 
+    //make an autofilter to shape the noise
+    var autoFilter = new Tone.AutoFilter({
+      "frequency" : "21m",
+      "min" : 200,
+      "max" : 5000,
+      "depth" : .94,
+      "type" : "sine2",
+      "wet" : 1
+    }).chain(compressor, Tone.Destination);
+    noise.connect(autoFilter);
+    autoFilter.start()
 
-    const phrases = [];
+    const first = new Tone.Sequence( (time, note) => {
+      const playNote = notesObjects[Math.floor(Math.random() * (notesObjects.length-1))]
+      synth2.triggerAttackRelease(playNote.note, 1, time) 
+    }, notesObjects, "1n").start(0)
 
-    for (let i = 0; i < 54; i++) {
-      const phrase = [];
-      for (let j = 0; j < Math.random() * 5 + 4; j++) {
-        const note = NOTES[Math.floor(Math.random() * (NOTES.length - 1))];
-        phrase.push(note);
-      }
-      phrases.push(phrase);
-    }
+    const second = new Tone.Sequence( (time, note) => {
+      const playNote = notesObjects[Math.floor(Math.random() * (notesObjects.length-1))]
+      Math.random() > .3 ? synth2.triggerAttackRelease(playNote.note, .75, time) : null
+    }, notesObjects, "1n").start(0.5)
 
-    console.log(phrases);
-
-    const playHorn = (note) => {
-      console.log(note);
-      horn.set({
-        detune: Math.random() * 100 - 50,
-      });
-      if (horn.loaded && Math.random() < 0.75) {
-        const newNote = Note.transpose(note, "P-8");
-        horn.triggerAttack(newNote);
-        horn.triggerAttack(Note.transpose(newNote, "P-8"), `+0.5`);
-      }
-    };
-
-    const playMelody = (note) => {
-      console.log(note);
-
-      if (glock.loaded) {
-        const phrase = phrases[Math.floor(Math.random() * (phrases.length-1))];
-        const noteTime = Math.random() * 1 + 1 / phrase.length;
-        console.log(phrase);
-
-        (Math.random() > 0.5 ? phrase : [...phrase].reverse()).forEach(
-          (notes, i) => {
-            glock.triggerAttack(
-              notes,
-              `+${
-                (1 + i / 3 + Math.random() / 10 - 0.015) * noteTime +
-                Math.random() / 10 -
-                0.05
-              }`
-            );
-          }
-        );
-        
-      }
-    };
-
-    Tone.Transport.scheduleRepeat(
-      () => playHorn(NOTES[Math.floor(Math.random() * (NOTES.length - 1))]),
-      "9"
-    );
-    Tone.Transport.scheduleRepeat(() => playHorn(NOTES[Math.floor(Math.random() * (NOTES.length-1))]), "11");
-
-    Tone.Transport.scheduleRepeat(playMelody, "17.3");
-
+    const third = new Tone.Sequence( (time, note) => {
+      console.log(note)
+      const playNote = notesObjects[Math.floor(Math.random() * (notesObjects.length-1))]
+      if (note && Math.random() > 0.5) 
+      synth.triggerAttackRelease(playNote.note, 1, time)
+    }, [...notesObjects, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null] , "4n").start(5)
+   
+    const fourth = new Tone.Sequence( (time, note) => {
+      const playNote = bassNotes[Math.floor(Math.random() * (bassNotes.length-1))]
+      // if (note && Math.random() > 0.5)
+      console.log('fourth')
+      bassSynth.triggerAttackRelease(playNote.note, 3, time)
+    }, [...bassNotes] , "7m").start()
 
     if (Tone.Transport.state !== "started") {
       Tone.Transport.start();
@@ -157,9 +161,7 @@ let s = (sk) => {
 
   sk.mousePressed = () => {
     if (ready) {
-      NOTES.forEach((note) => {
-        glock.triggerAttackRelease(note, 1);
-      });
+     
       
     } else {
       ready = true;

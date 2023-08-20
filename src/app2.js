@@ -12,6 +12,11 @@ let s = (sk) => {
   let root = "G#2";
   let NOTES = ["B3", "D3", "E3", "F#4", "A4"];
 
+  
+let pianoSlider = null;
+let noiseSlider = null;
+let synthSlider = null;
+let noise = null;
 
 
   const setRoot = (newRoot, mood = 'major') => {
@@ -59,12 +64,18 @@ let s = (sk) => {
   sk.setup = () => {
     sk.createCanvas(window.innerWidth, window.innerHeight);
     sk.background(40);
+    pianoSlider = sk.createSlider(-40, 0, -40);
+    pianoSlider.position(200,200);
+    noiseSlider = sk.createSlider(-40, 0, -40);
+    noiseSlider.position(200,300);
+    synthSlider = sk.createSlider(-40, 0, -40);
+    synthSlider.position(200,400);
   };
 
   const initializeAudio = () => {
     Tone.start();
 
-    var noise = new Tone.Noise("pink").start();
+    noise = new Tone.Noise("pink").start();
 
     noise.volume.value = -22;
 
@@ -74,7 +85,6 @@ let s = (sk) => {
       "min" : 800,
       "max" : 15000,
       "depth" : .98,
-      "type" : "sine",
       "wet" : 1
     }).chain(compressor, Tone.Destination);
     noise.connect(autoFilter);
@@ -170,6 +180,10 @@ let s = (sk) => {
       sk.fill("black");
       sk.textAlign(sk.CENTER, sk.CENTER);
       sk.text("POGWAR", sk.width / 2, sk.height / 2);
+
+      glock.volume.value = pianoSlider.value();
+      horn.volume.value = noiseSlider.value();
+      noise.volume.value = synthSlider.value();
     }
   };
 
