@@ -7,6 +7,7 @@ let ready = false;
 const samples = getSamples({ format: "mp3" });
 
 
+const compressor = new Tone.Compressor(-30, 3);
 
 
 

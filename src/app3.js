@@ -64,24 +64,6 @@ let s = (sk) => {
   const initializeAudio = () => {
     Tone.start();
 
-    var noise = new Tone.Noise("pink").start();
-
-    noise.volume.value = -22;
-
-    //make an autofilter to shape the noise
-    var autoFilter = new Tone.AutoFilter({
-      "frequency" : "21m",
-      "min" : 800,
-      "max" : 15000,
-      "depth" : .98,
-      "type" : "sine",
-      "wet" : 1
-    }).chain(compressor, Tone.Destination);
-    noise.connect(autoFilter);
-    autoFilter.start()
-
-
-
     const playPogwar = () => {
       if (sampler3.loaded)
         sampler3.set({
