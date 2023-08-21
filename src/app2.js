@@ -1,6 +1,7 @@
 import * as Tone from "tone";
 import p5 from "p5";
-import { Note, Scale } from "tonal";
+import { transpose } from "@tonaljs/note"
+
 
 let ready = false;
 
@@ -12,17 +13,13 @@ let s = (sk) => {
   let root = "G#2";
   let NOTES = ["B3", "D3", "E3", "F#4", "A4"];
 
-  
+
 let pianoSlider = null;
 let noiseSlider = null;
 let synthSlider = null;
 let noise = null;
 
 
-  const setRoot = (newRoot, mood = 'major') => {
-    root = newRoot;
-    NOTES = Scale.get(`${root} ${mood}`).notes;
-  };
 
 
   const glock = new Tone.Sampler({
@@ -125,9 +122,9 @@ let noise = null;
         detune: Math.random() * 100 - 50,
       });
       if (horn.loaded && Math.random() < 0.75) {
-        const newNote = Note.transpose(note, "P-8");
+        const newNote = transpose(note, "P-8");
         horn.triggerAttack(newNote);
-        horn.triggerAttack(Note.transpose(newNote, "P-8"), `+0.5`);
+        horn.triggerAttack(transpose(newNote, "P-8"), `+0.5`);
       }
     };
 
@@ -151,7 +148,7 @@ let noise = null;
             );
           }
         );
-        
+
       }
     };
 
@@ -192,7 +189,7 @@ let noise = null;
       NOTES.forEach((note) => {
         glock.triggerAttackRelease(note, 1);
       });
-      
+
     } else {
       ready = true;
       initializeAudio();

@@ -1,8 +1,6 @@
 import * as Tone from "tone";
 import p5 from "p5";
-import { Note, Scale } from "tonal";
 
-let gain = null;
 
 let ready = false;
 
@@ -32,7 +30,7 @@ let s = (sk) => {
     { note: "B1", prob: 0.2 },
     { note: "D2", prob: 0.2 },
     { note: "E2", prob: 0.2 },]
-  
+
   const synth = new Tone.Synth({
     oscillator: {
       type: "sine4"
@@ -43,7 +41,7 @@ let s = (sk) => {
       sustain: 0.1,
       release: 0.1,
     }
-    
+
   })
 
 
@@ -61,7 +59,7 @@ let s = (sk) => {
       release: 0.1,
     }
   })
-  
+
 
   bassSynth.chain( delay, reverb,compressor, Tone.Destination);
 
@@ -81,7 +79,7 @@ let s = (sk) => {
 
   synth2.chain(reverb, compressor, Tone.Destination)
   synth2.volume.value = -3;
-  
+
 
   sk.setup = () => {
     sk.createCanvas(window.innerWidth, window.innerHeight);
@@ -118,7 +116,7 @@ let s = (sk) => {
 
     const first = new Tone.Sequence( (time, note) => {
       const playNote = notesObjects[Math.floor(Math.random() * (notesObjects.length-1))]
-      synth2.triggerAttackRelease(playNote.note, 1, time) 
+      synth2.triggerAttackRelease(playNote.note, 1, time)
     }, notesObjects, "1n").start(0)
 
     const second = new Tone.Sequence( (time, note) => {
@@ -129,10 +127,10 @@ let s = (sk) => {
     const third = new Tone.Sequence( (time, note) => {
       console.log(note)
       const playNote = notesObjects[Math.floor(Math.random() * (notesObjects.length-1))]
-      if (note && Math.random() > 0.5) 
+      if (note && Math.random() > 0.5)
       synth.triggerAttackRelease(playNote.note, 1, time)
     }, [...notesObjects, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null] , "4n").start(5)
-   
+
     const fourth = new Tone.Sequence( (time, note) => {
       const playNote = bassNotes[Math.floor(Math.random() * (bassNotes.length-1))]
       // if (note && Math.random() > 0.5)
@@ -161,8 +159,8 @@ let s = (sk) => {
 
   sk.mousePressed = () => {
     if (ready) {
-     
-      
+
+
     } else {
       ready = true;
       initializeAudio();

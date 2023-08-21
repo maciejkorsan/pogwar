@@ -9,7 +9,6 @@
     "build": "parcel build src/*.html"
   },
   "dependencies": {
-    "@generative-music/samples-alex-bainter": "^2.5.0",
     "p5": "^1.7.0",
     "parcel": "^2.9.3",
     "tonal": "^5.0.0",

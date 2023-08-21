@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 import p5 from "p5";
-import { Note } from "tonal";
+import { transpose } from "@tonaljs/note"
 
 
 let ready = false;
@@ -146,7 +146,7 @@ let s = (sk) => {
 
 
     Tone.start();
-    
+
     constSynth.triggerAttack();
     const chords = ["C3", "G3", "D3", "E3", "A2"];
 
@@ -158,7 +158,7 @@ let s = (sk) => {
 
     const playChord = () => {
       const index = chords.indexOf(chord);
-      bgSynth.triggerAttackRelease(Note.transpose(chord, 'P-8'), 5.5);
+      bgSynth.triggerAttackRelease(transpose(chord, 'P-8'), 5.5);
 
       const tmp = [...chords];
       tmp.splice(index, 1);
@@ -167,7 +167,7 @@ let s = (sk) => {
       Tone.Transport.scheduleOnce(playChord, `+8`);
     };
 
-   
+
 
 
 
@@ -215,8 +215,8 @@ let s = (sk) => {
             piano.triggerAttack(
               notes,
               `+${
-                (1 + i + Math.random() / 20 - 0.015) * noteTime 
-              }`  
+                (1 + i + Math.random() / 20 - 0.015) * noteTime
+              }`
             );
         }
       );
